@@ -702,16 +702,19 @@ def main():
     print ("Number of layers: %d" % gcode.layers_count)
     print ("Estimated duration: %s" % gcode.estimate_duration()[1])
     print(sys.argv[0])
-    # connection=sqlite3.connect('data.db')
-    # cursor=connection.cursor()
-    
-    # query1="insert into print_estimator est_time values(?) where filename=?"
-    # query="update print_estimator set est_time=? where filename=?"
 
-    # cursor.execute(query,(gcode.estimate_duration()[1],sys.argv[0].replace('gcode','stl')))
-    # connection.commit()
-    # connection.close()
-    # print(sys.argv[0].replace('gcode','stl'))
+    time_estimate=str(gcode.estimate_duration()[1])
+
+    connection=sqlite3.connect('data.db')
+    cursor=connection.cursor()
+    
+    query1="insert into print_estimator est_time values(?) where filename=?"
+    query="update print_estimator set est_time=? where filename=?"
+
+    cursor.execute(query,(time_estimate,sys.argv[1].replace('gcode','stl')))
+    connection.commit()
+    connection.close()
+    print('*****************'+sys.argv[1])
 
 
 if __name__ == '__main__':

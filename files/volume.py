@@ -86,11 +86,8 @@ def est_printtime():
         
         # db_response=write_estimate_db(print_params)     
         # print(db_response)
-# execute_stl()
-# create_gcode()
+execute_stl()
+create_gcode()
 est_printtime()
 read_db()
 os.system('cmd /k')
-# current_dir=os.getcwd()
-# parent_dir=os.path.dirname(os.path.dirname(current_dir))
-
