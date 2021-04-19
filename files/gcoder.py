@@ -713,9 +713,10 @@ def main():
 
     cursor.execute(query,(time_estimate,sys.argv[1].replace('gcode','stl')))
     connection.commit()
-    connection.close()
+    
     print('*****************'+sys.argv[1])
+    print(cursor.execute("select * from print_estimator").fetchone())
 
-
+    connection.close()
 if __name__ == '__main__':
     main()

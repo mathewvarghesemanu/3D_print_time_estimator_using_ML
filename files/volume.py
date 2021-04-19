@@ -82,12 +82,12 @@ def est_printtime():
     gcode_files=get_files(gcode_filepath)
     for file in gcode_files:
         print(file)
-        os.system('gcoder.py {}'.format(file)) 
+        os.system('python gcoder.py {}'.format(file)) 
         
         # db_response=write_estimate_db(print_params)     
         # print(db_response)
-execute_stl()
-create_gcode()
+# execute_stl()
+# create_gcode()
 est_printtime()
 read_db()
 os.system('cmd /k')
