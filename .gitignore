@@ -1,2 +1,2 @@
-files/stls/
-files/gcodes/
+files/stls/*
+files/gcodes/*
