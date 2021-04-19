@@ -3,10 +3,10 @@ from stl import mesh
 import sqlite3
 import math
 import os
-
 # Using an existing closed stl file:
 filename='1.stl'
-filepath="stls/"
+stl_filepath="stls/"
+gcode_filepath="gcodes/"
 
 
 
@@ -26,11 +26,13 @@ def get_params(filename,infill,layer_height):
     learning_parameters=(filename,volume,h,r,infill,layer_height,None)
 
     return learning_parameters
-def write_db(print_params):
+
+def write_param_db(print_params):
     connection=sqlite3.connect('data.db')
     cursor=connection.cursor()
-    query1="create table if not exists print_estimator (filename text,volume float,model_height float, model_radius float,infill float, layer_height float,est_time float) "
+    query1="create table if not exists print_estimator (filename text,volume float,model_height float, model_radius float,infill float, layer_height float,est_time text) "
     cursor.execute(query1)
+    connection.commit()
     query2="insert into print_estimator values(?,?,?,?,?,?,?)"
     cursor.execute(query2,print_params)
     connection.commit()
@@ -52,12 +54,43 @@ def get_files(filepath):
             file.append(os.path.join(root, name))
     return file
 
-stl_files=get_files(filepath)
-for file in stl_files:
-    print_params=get_params(file,infill,layer_height)
-    db_response=write_db(print_params)
-    print(db_response)
-read_db()
+def execute_stl():
+    stl_files=get_files(stl_filepath)
+    for file in stl_files:
+        print_params=get_params(file,infill,layer_height)
+        db_response=write_param_db(print_params)
+        print(db_response)
+    read_db()
 
-gcode_files=
-os.system('cmd /k "slic3r-console --no-gui -o --load config.ini 1.stl"')
+def write_estimate_db(print_params):
+    connection=sqlite3.connect('data.db')
+    cursor=connection.cursor()
+    query2="insert into print_estimator values(?) where filename=?"
+    cursor.execute(query2,print_params)
+    connection.commit()
+    connection.close()
+    return "written to db"
+
+
+def create_gcode():
+    stl_files=get_files(stl_filepath)
+    for file in stl_files:
+        print(file)
+        os.system('..\slic3r-console --no-gui -o gcodes/ --load ../config.ini {}'.format(file)) 
+
+def est_printtime():
+    gcode_files=get_files(gcode_filepath)
+    for file in gcode_files:
+        print(file)
+        os.system('gcoder.py {}'.format(file)) 
+        
+        # db_response=write_estimate_db(print_params)     
+        # print(db_response)
+# execute_stl()
+# create_gcode()
+est_printtime()
+read_db()
+os.system('cmd /k')
+# current_dir=os.getcwd()
+# parent_dir=os.path.dirname(os.path.dirname(current_dir))
+

@@ -701,10 +701,18 @@ def main():
     print ("Filament used: %0.02fmm" % gcode.filament_length)
     print ("Number of layers: %d" % gcode.layers_count)
     print ("Estimated duration: %s" % gcode.estimate_duration()[1])
-    connection=sqlite3.connect('data.db')
-    cursor=connection.cursor()
-    query="insert into printestimator print_time values(?)"
-    cursor.execute(query,gcode.estimate_duration()[1])
+    print(sys.argv[0])
+    # connection=sqlite3.connect('data.db')
+    # cursor=connection.cursor()
+    
+    # query1="insert into print_estimator est_time values(?) where filename=?"
+    # query="update print_estimator set est_time=? where filename=?"
+
+    # cursor.execute(query,(gcode.estimate_duration()[1],sys.argv[0].replace('gcode','stl')))
+    # connection.commit()
+    # connection.close()
+    # print(sys.argv[0].replace('gcode','stl'))
+
 
 if __name__ == '__main__':
     main()
