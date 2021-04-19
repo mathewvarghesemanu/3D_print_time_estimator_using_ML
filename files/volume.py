@@ -30,7 +30,7 @@ def get_params(filename,infill,layer_height):
 def write_param_db(print_params):
     connection=sqlite3.connect('data.db')
     cursor=connection.cursor()
-    query1="create table if not exists print_estimator (filename text,volume float,model_height float, model_radius float,infill float, layer_height float,est_time text) "
+    query1="create table if not exists print_estimator (filename text,volume float,model_height float, model_radius float,infill float, layer_height float,est_time float) "
     cursor.execute(query1)
     connection.commit()
     query2="insert into print_estimator values(?,?,?,?,?,?,?)"
@@ -86,8 +86,8 @@ def est_printtime():
         
         # db_response=write_estimate_db(print_params)     
         # print(db_response)
-# execute_stl()
-# create_gcode()
+execute_stl()
+create_gcode()
 est_printtime()
 read_db()
 os.system('cmd /k')

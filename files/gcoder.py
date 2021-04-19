@@ -704,14 +704,15 @@ def main():
     print(sys.argv[0])
 
     time_estimate=str(gcode.estimate_duration()[1])
-
+    time_est_minute=(gcode.estimate_duration()[1].seconds/60)
+    time_est_minute=round(time_est_minute)
     connection=sqlite3.connect('data.db')
     cursor=connection.cursor()
     
     query1="insert into print_estimator est_time values(?) where filename=?"
     query="update print_estimator set est_time=? where filename=?"
 
-    cursor.execute(query,(time_estimate,sys.argv[1].replace('gcode','stl')))
+    cursor.execute(query,(time_est_minute,sys.argv[1].replace('gcode','stl')))
     connection.commit()
     
     print('*****************'+sys.argv[1])
