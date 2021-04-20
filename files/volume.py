@@ -3,29 +3,37 @@ from stl import mesh
 import sqlite3
 import math
 import os
+import warnings
+warnings.filterwarnings('error')
+
 # Using an existing closed stl file:
 filename='1.stl'
 stl_filepath="stls/"
 gcode_filepath="gcodes/"
-
+import shutil
 
 
 infill=20
 layer_height=.2
 def get_params(filename,infill,layer_height):
-    your_mesh = mesh.Mesh.from_file(filename)
-    volume, cog, inertia = your_mesh.get_mass_properties()
-    # print("Volume                                  = {0}".format(volume))
-    
-    x_dim=your_mesh.x.max()-your_mesh.x.min()
-    y_dim=your_mesh.y.max()-your_mesh.y.min()
-    z_dim=your_mesh.z.max()-your_mesh.z.min()
-    dimensions=(x_dim,y_dim,z_dim)
-    h=float(z_dim)
-    r=float(math.sqrt(volume/(math.pi*h)))
-    learning_parameters=(filename,volume,h,r,infill,layer_height,None)
+    try:
+        your_mesh = mesh.Mesh.from_file(filename)
+        volume, cog, inertia = your_mesh.get_mass_properties()
+        # print("Volume                                  = {0}".format(volume))
+        
+        x_dim=your_mesh.x.max()-your_mesh.x.min()
+        y_dim=your_mesh.y.max()-your_mesh.y.min()
+        z_dim=your_mesh.z.max()-your_mesh.z.min()
+        dimensions=(x_dim,y_dim,z_dim)
+        h=float(z_dim)
+        r=float(math.sqrt(volume/(math.pi*h)))
+        learning_parameters=(filename,volume,h,r,infill,layer_height,None)
 
-    return learning_parameters
+        return learning_parameters
+    except:
+        shutil.move(filename, "bad_stls/"+filename)
+        print("bad_stl moved")
+        return(None,None,None,None,None,None,None)
 
 def write_param_db(print_params):
     connection=sqlite3.connect('data.db')
@@ -57,9 +65,11 @@ def get_files(filepath):
 def execute_stl():
     stl_files=get_files(stl_filepath)
     for file in stl_files:
+        print(str(stl_files.index(file))+" / "+str(len(stl_files)))
         print_params=get_params(file,infill,layer_height)
-        db_response=write_param_db(print_params)
-        print(db_response)
+        if print_params[1]!=None:
+            db_response=write_param_db(print_params)
+            print(db_response)
     read_db()
 
 def write_estimate_db(print_params):
@@ -86,6 +96,19 @@ def est_printtime():
         
         # db_response=write_estimate_db(print_params)     
         # print(db_response)
+def clear_db():
+    try:
+        query="drop table print_estimator"
+        connection=sqlite3.connect("data.db")
+        cursor=connection.cursor()
+        cursor.execute(query)
+        print("***************db creared***************")
+        connection.commit()
+        connection.close()
+    except:
+        pass
+
+clear_db()
 execute_stl()
 create_gcode()
 est_printtime()
