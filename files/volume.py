@@ -70,6 +70,7 @@ def execute_stl():
         if print_params[1]!=None:
             db_response=write_param_db(print_params)
             print(db_response)
+            os.system('cls')
     read_db()
 
 def write_estimate_db(print_params):
@@ -84,9 +85,41 @@ def write_estimate_db(print_params):
 
 def create_gcode():
     stl_files=get_files(stl_filepath)
+    gcode_files=get_files(gcode_filepath)
     for file in stl_files:
-        print(file)
-        os.system('..\slic3r-console --no-gui -o gcodes/ --load ../config.ini {}'.format(file)) 
+        if file.replace('stl','gcode') not in gcode_files:
+            print(str(stl_files.index(file))+" / "+str(len(stl_files)))
+            print(file)
+            try:
+                os.system('..\slic3r-console --no-gui -o gcodes/ --load  ../config.ini {}'.format(file)) 
+            except:
+                print("skipped")
+
+def repair_stl():
+    stl_files=get_files(stl_filepath)
+    gcode_files=get_files(gcode_filepath)
+    for file in stl_files:
+        if file.replace('stl','gcode') not in gcode_files:
+            print(str(stl_files.index(file))+" / "+str(len(stl_files)))
+            print(file)
+            try:
+                os.system('..\slic3r-console --no-gui --repair {}'.format(file)) 
+                
+            except:
+                print("skipped")
+
+                
+def delete_fixed_stl():
+    stl_files=get_files(stl_filepath)
+    for file in stl_files:
+        stl_file=file.replace('_fixed','')
+        stl_file=obj_file.replace('stl','obj')
+        if stl_file in stl_files:
+            print(str(stl_files.index(file))+" / "+str(len(stl_files)))
+            print(file)
+            shutil.move(file, "bad_stls/"+file)
+            shutil.move(stl_file, "bad_stls/"+stl_file)
+            print("bad_stl moved")
 
 def est_printtime():
     gcode_files=get_files(gcode_filepath)
@@ -108,8 +141,10 @@ def clear_db():
     except:
         pass
 
-clear_db()
-execute_stl()
+# clear_db()
+# execute_stl()
+repair_stl()
+delete_fixed_stl()
 create_gcode()
 est_printtime()
 read_db()
