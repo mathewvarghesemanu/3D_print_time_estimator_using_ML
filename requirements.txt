@@ -1,0 +1,5 @@
+configparser==5.0.2
+dlib==19.22.0
+INIParser==1.1.1
+requests==2.22.0
+numpy-stl==2.16.0
