@@ -5,6 +5,8 @@ import math
 import os
 import warnings
 warnings.filterwarnings('error')
+from subprocess import STDOUT, check_output
+import subprocess
 
 # Using an existing closed stl file:
 filename='1.stl'
@@ -91,7 +93,10 @@ def create_gcode():
             print(str(stl_files.index(file))+" / "+str(len(stl_files)))
             print(file)
             try:
-                os.system('..\slic3r-console --no-gui -o gcodes/ --load  ../config.ini {}'.format(file)) 
+                CMDCommand = '..\slic3r-console --no-gui -o gcodes/ --load  ../config.ini {}'.format(file)
+                timeoutSeconds = 15
+                subprocess.check_output(CMDCommand, shell=True, timeout=timeoutSeconds)
+                # os.system('..\slic3r-console --no-gui -o gcodes/ --load  ../config.ini {}'.format(file)) 
             except:
                 print("skipped")
 
@@ -103,7 +108,10 @@ def repair_stl():
             print(str(stl_files.index(file))+" / "+str(len(stl_files)))
             print(file)
             try:
-                os.system('..\slic3r-console --no-gui --repair {}'.format(file)) 
+                CMDCommand = '..\slic3r-console --no-gui --repair {}'.format(file)
+                timeoutSeconds = 10
+                subprocess.check_output(CMDCommand, shell=True, timeout=timeoutSeconds)
+                # os.system('..\slic3r-console --no-gui --repair {}'.format(file)) 
                 
             except:
                 print("skipped")
@@ -113,11 +121,13 @@ def delete_fixed_stl():
     stl_files=get_files(stl_filepath)
     for file in stl_files:
         stl_file=file.replace('_fixed','')
-        stl_file=obj_file.replace('stl','obj')
+        stl_file=obj_file.replace('stl','aaaaaaa')
+        stl_file=obj_file.replace('obj','stl')
         if stl_file in stl_files:
             print(str(stl_files.index(file))+" / "+str(len(stl_files)))
             print(file)
             shutil.move(file, "bad_stls/"+file)
+            stl_file=obj_file.replace('aaaaaaa','stl')
             shutil.move(stl_file, "bad_stls/"+stl_file)
             print("bad_stl moved")
 
@@ -142,9 +152,9 @@ def clear_db():
         pass
 
 # clear_db()
-# execute_stl()
 repair_stl()
 delete_fixed_stl()
+# execute_stl()
 create_gcode()
 est_printtime()
 read_db()
