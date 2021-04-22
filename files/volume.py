@@ -120,23 +120,31 @@ def repair_stl():
 def delete_fixed_stl():
     stl_files=get_files(stl_filepath)
     for file in stl_files:
-        stl_file=file.replace('_fixed','')
-        stl_file=obj_file.replace('stl','aaaaaaa')
-        stl_file=obj_file.replace('obj','stl')
-        if stl_file in stl_files:
-            print(str(stl_files.index(file))+" / "+str(len(stl_files)))
-            print(file)
-            shutil.move(file, "bad_stls/"+file)
-            stl_file=obj_file.replace('aaaaaaa','stl')
-            shutil.move(stl_file, "bad_stls/"+stl_file)
-            print("bad_stl moved")
+        if 'obj' in file:
+            stl_file=file.replace('_fixed','')
+            stl_file=stl_file.replace('obj','stl')
+            print(stl_file)
+            if stl_file in stl_files:
+                print(str(stl_files.index(file))+" / "+str(len(stl_files)))
+                print(file)
+                shutil.move(file, "bad_stls/"+file)
+                shutil.move(stl_file, "bad_stls/"+stl_file)
+                print("bad_stl moved")
+            else:
+                pass
 
 def est_printtime():
     gcode_files=get_files(gcode_filepath)
     for file in gcode_files:
         print(file)
-        os.system('python gcoder.py {}'.format(file)) 
-        
+        try:
+            CMDCommand = 'python gcoder.py {}'.format(file)
+            timeoutSeconds = 15
+            subprocess.check_output(CMDCommand, shell=True, timeout=timeoutSeconds)
+        except:
+            print('Gcode creation failed')
+            
+        # os.system('python gcoder.py {}'.format(file)) 
         # db_response=write_estimate_db(print_params)     
         # print(db_response)
 def clear_db():
@@ -152,10 +160,10 @@ def clear_db():
         pass
 
 # clear_db()
-repair_stl()
-delete_fixed_stl()
-# execute_stl()
+# repair_stl()
+# delete_fixed_stl()
+execute_stl()
 create_gcode()
 est_printtime()
-read_db()
+# read_db()
 os.system('cmd /k')
