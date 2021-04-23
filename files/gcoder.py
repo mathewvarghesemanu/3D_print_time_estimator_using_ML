@@ -20,6 +20,9 @@ import math
 import datetime
 import logging
 from array import array
+import warnings
+warnings.filterwarnings("ignore", category=DeprecationWarning) 
+
 
 gcode_parsed_args = ["x", "y", "e", "f", "z", "i", "j"]
 gcode_parsed_nonargs = ["g", "t", "m", "n"]

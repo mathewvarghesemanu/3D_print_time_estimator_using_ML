@@ -4,9 +4,11 @@ import sqlite3
 import math
 import os
 import warnings
-warnings.filterwarnings('error')
+warnings.filterwarnings("ignore", category=DeprecationWarning) 
+warnings.filterwarnings("ignore")
 from subprocess import STDOUT, check_output
 import subprocess
+import threading
 
 # Using an existing closed stl file:
 filename='1.stl'
@@ -85,9 +87,14 @@ def write_estimate_db(print_params):
     return "written to db"
 
 
-def create_gcode():
+
+
+def create_gcode(split_index):
+    split_index=int(split_index)
     stl_files=get_files(stl_filepath)
+    stl_files=stl_files[split_index:]
     gcode_files=get_files(gcode_filepath)
+    stl_files.reverse()
     for file in stl_files:
         if file.replace('stl','gcode') not in gcode_files:
             print(str(stl_files.index(file))+" / "+str(len(stl_files)))
@@ -99,6 +106,8 @@ def create_gcode():
                 # os.system('..\slic3r-console --no-gui -o gcodes/ --load  ../config.ini {}'.format(file)) 
             except:
                 print("skipped")
+        else:
+            print("Already done")
 
 def repair_stl():
     stl_files=get_files(stl_filepath)
@@ -136,14 +145,15 @@ def delete_fixed_stl():
 def est_printtime():
     gcode_files=get_files(gcode_filepath)
     for file in gcode_files:
+        print(str(gcode_files.index(file))+" / "+str(len(gcode_files)))
         print(file)
         try:
             CMDCommand = 'python gcoder.py {}'.format(file)
-            timeoutSeconds = 15
+            timeoutSeconds = 10
             subprocess.check_output(CMDCommand, shell=True, timeout=timeoutSeconds)
         except:
             print('Gcode creation failed')
-            
+
         # os.system('python gcoder.py {}'.format(file)) 
         # db_response=write_estimate_db(print_params)     
         # print(db_response)
@@ -158,12 +168,33 @@ def clear_db():
         connection.close()
     except:
         pass
-
+def multithread_gcode_creation():
+    stl_files=get_files(stl_filepath)
+    stl_length=len(stl_files)
+    div=stl_length/5
+    x1 = threading.Thread(target=create_gcode, args=(stl_length/8,))
+    x2=threading.Thread(target=create_gcode, args=(2*stl_length/8,))
+    x3=threading.Thread(target=create_gcode, args=(3*stl_length/8,))
+    x4=threading.Thread(target=create_gcode, args=(4*stl_length/8,))
+    x5=threading.Thread(target=create_gcode, args=(5*stl_length/8,))
+    x6=threading.Thread(target=create_gcode, args=(6*stl_length/8,))
+    x7=threading.Thread(target=create_gcode, args=(7*stl_length/8,))
+    x8=threading.Thread(target=create_gcode, args=(8*stl_length/8,))
+    x1.start()
+    x2.start()
+    x3.start()
+    x4.start()
+    x5.start()
+    x6.start()
+    x7.start()
+    x8.start()
 # clear_db()
 # repair_stl()
 # delete_fixed_stl()
-execute_stl()
-create_gcode()
-est_printtime()
-# read_db()
+# execute_stl()
+# multithread_gcode_creation()
+
+# create_gcode(0)
+# est_printtime()
+read_db()
 os.system('cmd /k')
