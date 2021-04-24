@@ -188,13 +188,15 @@ def multithread_gcode_creation():
     x6.start()
     x7.start()
     x8.start()
-# clear_db()
+clear_db()
 # repair_stl()
 # delete_fixed_stl()
+execute_stl()
+
 # execute_stl()
-# multithread_gcode_creation()
+multithread_gcode_creation()
 
 # create_gcode(0)
-# est_printtime()
+est_printtime()
 read_db()
 os.system('cmd /k')
